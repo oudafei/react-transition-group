@@ -90,11 +90,13 @@ class CSSTransition extends React.Component {
     exit: {},
   }
 
+// 主要逻辑都是通过Transition这个组件调用的
   onEnter = (maybeNode, maybeAppearing) => {
     const [node, appearing] = this.resolveArguments(maybeNode, maybeAppearing)
     this.removeClasses(node, 'exit');
     this.addClass(node, appearing ? 'appear' : 'enter', 'base');
 
+    // 调用用户的onEnter回调
     if (this.props.onEnter) {
       this.props.onEnter(maybeNode, maybeAppearing)
     }
