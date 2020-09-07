@@ -216,7 +216,7 @@ class Transition extends React.Component {
       } else {
         this.performExit()
       }
-    } else if (this.props.unmountOnExit && this.state.status === EXITED) {
+    } else if (this.props.unmountOnExit && this.state.status === EXITED) {// 如果是unmountOnExit为true的话，那么渲染的组件将会删除——逻辑render中判断了
       this.setState({ status: UNMOUNTED })
     }
   }
@@ -253,6 +253,12 @@ class Transition extends React.Component {
   }
 
   performExit() {
+    // Transition这个组件只是简单的 添加属性而已
+    /*
+      By default the Transition component does not alter the behavior of the component it renders, it only tracks "enter" and "exit" states for the components. It's up to you to give meaning and effect to those states. For example we can add styles to a component when it enters or exits:
+      https://reactcommunity.org/react-transition-group/transition
+      但是里面调用 this.props.onExited——CssTransition中实现了，就可以有 xxx-enter xxx-enter-active xxx-enter-done了
+    */
     const { exit } = this.props
     const timeouts = this.getTimeouts()
     const maybeNode = this.props.nodeRef
@@ -269,6 +275,8 @@ class Transition extends React.Component {
 
     this.props.onExit(maybeNode)
 
+    this.safeSetState({ status: EXITING }, () => {
+      // 通过nextTick实现渲染队列的更新
     this.safeSetState({ status: EXITING }, () => {
       this.props.onExiting(maybeNode)
 
@@ -348,7 +356,7 @@ class Transition extends React.Component {
 
     const {
       children,
-      // filter props for `Transition`
+      // filter props for `Transition`. 过滤属性，将不是Transition的属性给我们传递的组件作为私有属性
       in: _in,
       mountOnEnter: _mountOnEnter,
       unmountOnExit: _unmountOnExit,
