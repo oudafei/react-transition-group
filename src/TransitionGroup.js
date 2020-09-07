@@ -54,13 +54,27 @@ class TransitionGroup extends React.Component {
     this.mounted = false
   }
 
+  // React新生命周期--getDerivedStateFromProps  https://www.jianshu.com/p/50fe3fb9f7c3
   static getDerivedStateFromProps(
     nextProps,
     { children: prevChildMapping, handleExited, firstRender }
   ) {
+      /*
+      export function getInitialChildMapping(props, onExited) {
+        return getChildMapping(props.children, child => {
+          return cloneElement(child, {
+            onExited: onExited.bind(null, child),
+            in: true,
+            appear: getProp(child, 'appear', props),
+            enter: getProp(child, 'enter', props),
+            exit: getProp(child, 'exit', props),
+          })
+        })
+      }
+      */
     return {
       children: firstRender
-        ? getInitialChildMapping(nextProps, handleExited)
+        ? getInitialChildMapping(nextProps, handleExited)// handleExited就是onExited会在Transition的回调中触发CssTransition——它里面触发这个handleExited
         : getNextChildMapping(nextProps, prevChildMapping, handleExited),
       firstRender: false,
     }
