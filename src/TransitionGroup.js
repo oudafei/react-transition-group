@@ -54,20 +54,40 @@ class TransitionGroup extends React.Component {
     this.mounted = false
   }
 
+  // React新生命周期--getDerivedStateFromProps  https://www.jianshu.com/p/50fe3fb9f7c3
   static getDerivedStateFromProps(
     nextProps,
     { children: prevChildMapping, handleExited, firstRender }
   ) {
+      /*
+      export function getInitialChildMapping(props, onExited) {
+        return getChildMapping(props.children, child => {
+          return cloneElement(child, {
+            onExited: onExited.bind(null, child),
+            in: true,
+            appear: getProp(child, 'appear', props),
+            enter: getProp(child, 'enter', props),
+            exit: getProp(child, 'exit', props),
+          })
+        })
+      }
+      */
     return {
       children: firstRender
-        ? getInitialChildMapping(nextProps, handleExited)
+        ? getInitialChildMapping(nextProps, handleExited)// 第一次组件初始化，因为在componentDidMount中有一个setState handleExited就是onExited会在Transition的回调中触发CssTransition——它里面触发这个handleExited
         : getNextChildMapping(nextProps, prevChildMapping, handleExited),
       firstRender: false,
     }
   }
 
   // node is `undefined` when user provided `nodeRef` prop
-  handleExited(child, node) {
+  handleExited(child, node) {// 第一个是一开始上一次真实的child 的DOM节点
+    /*
+      https://github.com/reactjs/react-transition-group/blob/master/src/Transition.js#L319
+     const node = this.props.nodeRef
+      ? this.props.nodeRef.current
+      : ReactDOM.findDOMNode(this)
+    */
     let currentChildMapping = getChildMapping(this.props.children)
 
     if (child.key in currentChildMapping) return
@@ -87,6 +107,8 @@ class TransitionGroup extends React.Component {
   }
 
   render() {
+    // component就是包裹的一个div
+    // 没有使用update方法，而是使用
     const { component: Component, childFactory, ...props } = this.props
     const { contextValue } = this.state
     const children = values(this.state.children).map(childFactory)
